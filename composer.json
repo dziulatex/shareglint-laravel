@@ -1,0 +1,47 @@
+{
+    "name": "imageapi/laravel",
+    "description": "Laravel integration for Image API — signed og:image URLs, a Blade component and queued OG image generation for Eloquent models",
+    "type": "library",
+    "license": "MIT",
+    "keywords": ["laravel", "open-graph", "og-image", "social-image", "blade"],
+    "require": {
+        "php": "^8.2",
+        "illuminate/contracts": "^11.0|^12.0|^13.0",
+        "illuminate/database": "^11.0|^12.0|^13.0",
+        "illuminate/queue": "^11.0|^12.0|^13.0",
+        "illuminate/support": "^11.0|^12.0|^13.0",
+        "illuminate/view": "^11.0|^12.0|^13.0",
+        "imageapi/image-api-php": "^1.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^10.0|^11.0",
+        "pestphp/pest": "^4.0|^5.0"
+    },
+    "autoload": {
+        "psr-4": { "ImageApi\\Laravel\\": "src/" },
+        "files": ["src/helpers.php"]
+    },
+    "autoload-dev": {
+        "psr-4": { "ImageApi\\Laravel\\Tests\\": "tests/" }
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../../sdk/php",
+            "options": { "symlink": true, "versions": { "imageapi/image-api-php": "1.0.0" } }
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": ["ImageApi\\Laravel\\ImageApiServiceProvider"],
+            "aliases": { "ImageApi": "ImageApi\\Laravel\\Facades\\ImageApi" }
+        }
+    },
+    "scripts": { "test": "pest" },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": { "pestphp/pest-plugin": true }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
