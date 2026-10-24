@@ -1,20 +1,20 @@
-# imageapi/laravel
+# shareglint/laravel
 
-Open Graph images for Laravel with [Image API](https://imageapi.dev): signed `og:image` URLs, a Blade
+Open Graph images for Laravel with [Shareglint](https://shareglint.com): signed `og:image` URLs, a Blade
 component, and a model trait that renders the image in a queued job when a post is published.
 
 ```bash
-composer require imageapi/laravel
-php artisan vendor:publish --tag=imageapi-config   # optional
+composer require shareglint/laravel
+php artisan vendor:publish --tag=shareglint-config   # optional
 ```
 
 ```dotenv
-IMAGE_API_ACCOUNT_ID=acc_…        # dashboard or GET /v1/account
-IMAGE_API_SIGNING_SECRET=sign_…   # signs og:image URLs
-IMAGE_API_KEY=sk_…                # only for the queued job / API calls
-# IMAGE_API_BASE_URL=https://imageapi.dev
-# IMAGE_API_TEMPLATE=blog-og      IMAGE_API_EXTENSION=png (jpg, webp, pdf)
-# IMAGE_API_QUEUE_CONNECTION=     IMAGE_API_QUEUE=
+SHAREGLINT_ACCOUNT_ID=acc_…        # dashboard or GET /v1/account
+SHAREGLINT_SIGNING_SECRET=sign_…   # signs og:image URLs
+SHAREGLINT_KEY=sk_…                # only for the queued job / API calls
+# SHAREGLINT_BASE_URL=https://shareglint.com
+# SHAREGLINT_TEMPLATE=blog-og      SHAREGLINT_EXTENSION=png (jpg, webp, pdf)
+# SHAREGLINT_QUEUE_CONNECTION=     SHAREGLINT_QUEUE=
 ```
 
 ## Signed URLs — no API call, no queue
@@ -31,9 +31,9 @@ quota twice. Elsewhere:
 
 ```php
 og_image('blog-og', ['title' => $post->title, 'locale' => 'en']);       // helper
-ImageApi::url('blog-og', ['title' => $post->title], 'jpg');            // facade
-ImageApi::autoOgUrl(url()->current());                                 // /u/ auto-OG, no secret
-ImageApi::render('blog-og', ['title' => 'Hi']);                        // any SDK method (imageapi/image-api-php)
+Shareglint::url('blog-og', ['title' => $post->title], 'jpg');            // facade
+Shareglint::autoOgUrl(url()->current());                                 // /u/ auto-OG, no secret
+Shareglint::render('blog-og', ['title' => 'Hi']);                        // any SDK method (shareglint/shareglint-php)
 ```
 
 `null` fields are left out, booleans become `1`/`0`, dates `Y-m-d`.
@@ -41,8 +41,8 @@ ImageApi::render('blog-og', ['title' => 'Hi']);                        // any SD
 ## Stored images for models
 
 ```php
-use ImageApi\Laravel\Concerns\HasOgImage;
-use ImageApi\Laravel\Contracts\OgImageable;
+use Shareglint\Laravel\Concerns\HasOgImage;
+use Shareglint\Laravel\Contracts\OgImageable;
 
 class Post extends Model implements OgImageable
 {

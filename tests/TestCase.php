@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace ImageApi\Laravel\Tests;
+namespace Shareglint\Laravel\Tests;
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use ImageApi\Laravel\ImageApiServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
+use Shareglint\Laravel\ShareglintServiceProvider;
 
 abstract class TestCase extends Orchestra
 {
@@ -18,15 +18,15 @@ abstract class TestCase extends Orchestra
 
     protected function getPackageProviders($app): array
     {
-        return [ImageApiServiceProvider::class];
+        return [ShareglintServiceProvider::class];
     }
 
     protected function defineEnvironment($app): void
     {
         $app['config']->set('database.default', 'testing');
-        $app['config']->set('imageapi.account_id', self::ACCOUNT);
-        $app['config']->set('imageapi.signing_secret', self::SECRET);
-        $app['config']->set('imageapi.key', 'sk_test');
+        $app['config']->set('shareglint.account_id', self::ACCOUNT);
+        $app['config']->set('shareglint.signing_secret', self::SECRET);
+        $app['config']->set('shareglint.key', 'sk_test');
         $app['config']->set('app.url', 'https://blog.example.com');
     }
 

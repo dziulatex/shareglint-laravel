@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Queue;
-use ImageApi\ImageApiException;
-use ImageApi\Laravel\ImageApiManager;
-use ImageApi\Laravel\Jobs\GenerateOgImage;
-use ImageApi\Laravel\Tests\Fixtures\Post;
+use Shareglint\Laravel\Jobs\GenerateOgImage;
+use Shareglint\Laravel\ShareglintManager;
+use Shareglint\Laravel\Tests\Fixtures\Post;
+use Shareglint\ShareglintException;
 
 // The job goes through the real PHP SDK and cURL to a stand-in API served by
 // `php -S` — the SDK client is final, and a fake at the HTTP level checks
@@ -29,8 +29,8 @@ beforeEach(function () {
         usleep(100_000);
     }
 
-    config()->set('imageapi.base_url', "http://127.0.0.1:{$port}");
-    app()->forgetInstance(ImageApiManager::class);
+    config()->set('shareglint.base_url', "http://127.0.0.1:{$port}");
+    app()->forgetInstance(ShareglintManager::class);
 
     Queue::fake();
     $this->post = Post::create(['title' => 'Hello, world!', 'author' => 'Ann & Bob']);
@@ -83,8 +83,8 @@ it('sends the same idempotency key for the same fields and a new one when they c
 });
 
 it('asks for the configured format', function () {
-    config()->set('imageapi.extension', 'jpg');
-    app()->forgetInstance(ImageApiManager::class);
+    config()->set('shareglint.extension', 'jpg');
+    app()->forgetInstance(ShareglintManager::class);
 
     app()->call([new GenerateOgImage($this->post), 'handle']);
 
@@ -102,11 +102,11 @@ it('leaves the column alone when the quota is gone or the API is busy', function
 it('throws on other API errors so the queue retries', function () {
     file_put_contents($this->log.'.status', '500');
 
-    expect(fn () => app()->call([new GenerateOgImage($this->post), 'handle']))->toThrow(ImageApiException::class);
+    expect(fn () => app()->call([new GenerateOgImage($this->post), 'handle']))->toThrow(ShareglintException::class);
 });
 
 it('queues on the configured connection and queue', function () {
-    config()->set('imageapi.queue', ['connection' => 'redis', 'name' => 'images']);
+    config()->set('shareglint.queue', ['connection' => 'redis', 'name' => 'images']);
 
     $job = new GenerateOgImage($this->post);
 

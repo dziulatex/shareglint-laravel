@@ -2,26 +2,26 @@
 
 declare(strict_types=1);
 
-namespace ImageApi\Laravel;
+namespace Shareglint\Laravel;
 
 use BackedEnum;
 use DateTimeInterface;
-use ImageApi\ImageApi;
 use InvalidArgumentException;
+use Shareglint\Shareglint;
 use Stringable;
 
 /**
- * URL builders and the REST client, configured from config/imageapi.php.
- * Unknown methods go to the SDK client, so `ImageApi::render(...)` works
+ * URL builders and the REST client, configured from config/shareglint.php.
+ * Unknown methods go to the SDK client, so `Shareglint::render(...)` works
  * through the facade.
  *
- * @mixin ImageApi
+ * @mixin Shareglint
  */
-final class ImageApiManager
+final class ShareglintManager
 {
     public const EXTENSIONS = ['png', 'jpg', 'webp', 'pdf'];
 
-    private ?ImageApi $client = null;
+    private ?Shareglint $client = null;
 
     /** @param array<string, mixed> $config */
     public function __construct(private readonly array $config) {}
@@ -35,11 +35,11 @@ final class ImageApiManager
      */
     public function url(string $template, array $fields = [], ?string $extension = null): string
     {
-        return ImageApi::signedUrl(
-            $this->require('account_id', 'IMAGE_API_ACCOUNT_ID'),
+        return Shareglint::signedUrl(
+            $this->require('account_id', 'SHAREGLINT_ACCOUNT_ID'),
             $template,
             self::normalize($fields),
-            $this->require('signing_secret', 'IMAGE_API_SIGNING_SECRET'),
+            $this->require('signing_secret', 'SHAREGLINT_SIGNING_SECRET'),
             $this->extension($extension),
             $this->baseUrl(),
         );
@@ -52,16 +52,16 @@ final class ImageApiManager
      */
     public function autoOgUrl(string $pageUrl, ?string $extension = null): string
     {
-        $account = $this->require('account_id', 'IMAGE_API_ACCOUNT_ID');
+        $account = $this->require('account_id', 'SHAREGLINT_ACCOUNT_ID');
 
         return $this->baseUrl().'/u/'.$account.'.'.$this->extension($extension).'?url='.rawurlencode($pageUrl);
     }
 
-    /** The REST client (renders, history, usage). Needs IMAGE_API_KEY. */
-    public function client(): ImageApi
+    /** The REST client (renders, history, usage). Needs SHAREGLINT_KEY. */
+    public function client(): Shareglint
     {
-        return $this->client ??= new ImageApi(
-            $this->require('key', 'IMAGE_API_KEY'),
+        return $this->client ??= new Shareglint(
+            $this->require('key', 'SHAREGLINT_KEY'),
             $this->baseUrl().'/v1',
             (int) ($this->config['timeout'] ?? 30),
         );
@@ -82,7 +82,7 @@ final class ImageApiManager
 
     public function baseUrl(): string
     {
-        return rtrim((string) ($this->config['base_url'] ?? '') ?: 'https://imageapi.dev', '/');
+        return rtrim((string) ($this->config['base_url'] ?? '') ?: 'https://shareglint.com', '/');
     }
 
     /** @param array<int, mixed> $arguments */
@@ -96,7 +96,7 @@ final class ImageApiManager
         $extension ??= (string) ($this->config['extension'] ?? 'png');
 
         if (! in_array($extension, self::EXTENSIONS, true)) {
-            throw new InvalidArgumentException("Image API: unknown extension '{$extension}' — use ".implode(', ', self::EXTENSIONS).'.');
+            throw new InvalidArgumentException("Shareglint: unknown extension '{$extension}' — use ".implode(', ', self::EXTENSIONS).'.');
         }
 
         return $extension;
@@ -128,7 +128,7 @@ final class ImageApiManager
                 $value instanceof DateTimeInterface => $value->format('Y-m-d'),
                 $value instanceof BackedEnum => (string) $value->value,
                 is_scalar($value), $value instanceof Stringable => (string) $value,
-                default => throw new InvalidArgumentException("Image API: field '{$name}' must be a string, number, boolean or date."),
+                default => throw new InvalidArgumentException("Shareglint: field '{$name}' must be a string, number, boolean or date."),
             };
 
             if ($value !== null) {

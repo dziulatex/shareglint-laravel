@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Queue;
-use ImageApi\Laravel\Tests\Fixtures\Post;
-use ImageApi\Laravel\Tests\TestCase;
+use Shareglint\Laravel\Tests\Fixtures\Post;
+use Shareglint\Laravel\Tests\TestCase;
 
-const ESCAPED_VECTOR = 'https://imageapi.dev/i/acc_01k8example0000000000000000/blog-og.png?author=Ann%20%26%20Bob&amp;locale=en&amp;title=Hello%2C%20world%21&amp;s=cdc6c6ad85a071f083b5f1374b0a6d98';
+const ESCAPED_VECTOR = 'https://shareglint.com/i/acc_01k8example0000000000000000/blog-og.png?author=Ann%20%26%20Bob&amp;locale=en&amp;title=Hello%2C%20world%21&amp;s=cdc6c6ad85a071f083b5f1374b0a6d98';
 
 it('renders the signed og:image and twitter tags', function () {
     $html = Blade::render('<x-og-image template="blog-og" :fields="$fields" alt="Hello" />', [
@@ -46,7 +46,7 @@ it('builds the auto-OG URL of the current page, or of a given one', function () 
     $this->get('/');
 
     expect(Blade::render('<x-og-image auto />'))
-        ->toContain('content="https://imageapi.dev/u/'.TestCase::ACCOUNT.'.png?url=http%3A%2F%2Flocalhost"')
+        ->toContain('content="https://shareglint.com/u/'.TestCase::ACCOUNT.'.png?url=http%3A%2F%2Flocalhost"')
         ->and(Blade::render('<x-og-image page="https://blog.example.com/a" extension="webp" />'))
         ->toContain('/u/'.TestCase::ACCOUNT.'.webp?url=https%3A%2F%2Fblog.example.com%2Fa"');
 });

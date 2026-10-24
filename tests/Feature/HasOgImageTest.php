@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Queue;
-use ImageApi\Laravel\Concerns\HasOgImage;
-use ImageApi\Laravel\ImageApiManager;
-use ImageApi\Laravel\Jobs\GenerateOgImage;
-use ImageApi\Laravel\Tests\Fixtures\Post;
+use Shareglint\Laravel\Concerns\HasOgImage;
+use Shareglint\Laravel\Jobs\GenerateOgImage;
+use Shareglint\Laravel\ShareglintManager;
+use Shareglint\Laravel\Tests\Fixtures\Post;
 
 beforeEach(function () {
     Queue::fake();
@@ -75,8 +75,8 @@ it('re-renders only on watched attributes when the model lists them', function (
 });
 
 it('uses the configured default template', function () {
-    config()->set('imageapi.template', 'article');
-    app()->forgetInstance(ImageApiManager::class);
+    config()->set('shareglint.template', 'article');
+    app()->forgetInstance(ShareglintManager::class);
 
     expect((new Post(['title' => 'x']))->ogImageTemplate())->toBe('article')
         ->and((new Post(['title' => 'x']))->ogImageSignedUrl())->toContain('/article.png?');

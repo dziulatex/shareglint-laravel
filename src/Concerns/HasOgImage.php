@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace ImageApi\Laravel\Concerns;
+namespace Shareglint\Laravel\Concerns;
 
 use Illuminate\Database\Eloquent\Model;
-use ImageApi\Laravel\Contracts\OgImageable;
-use ImageApi\Laravel\ImageApiManager;
-use ImageApi\Laravel\Jobs\GenerateOgImage;
 use LogicException;
+use Shareglint\Laravel\Contracts\OgImageable;
+use Shareglint\Laravel\Jobs\GenerateOgImage;
+use Shareglint\Laravel\ShareglintManager;
 
 /**
  * Gives an Eloquent model an OG image.
@@ -53,7 +53,7 @@ trait HasOgImage
 
     public function ogImageTemplate(): string
     {
-        return app(ImageApiManager::class)->defaultTemplate();
+        return app(ShareglintManager::class)->defaultTemplate();
     }
 
     /** Column that stores the rendered file URL. Null = never store, always sign. */
@@ -103,6 +103,6 @@ trait HasOgImage
 
     public function ogImageSignedUrl(): string
     {
-        return app(ImageApiManager::class)->url($this->ogImageTemplate(), $this->ogImageFields());
+        return app(ShareglintManager::class)->url($this->ogImageTemplate(), $this->ogImageFields());
     }
 }

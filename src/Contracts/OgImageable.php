@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ImageApi\Laravel\Contracts;
+namespace Shareglint\Laravel\Contracts;
 
 /**
  * A model with an OG image. The HasOgImage trait implements everything here

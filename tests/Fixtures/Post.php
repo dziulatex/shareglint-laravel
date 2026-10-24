@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace ImageApi\Laravel\Tests\Fixtures;
+namespace Shareglint\Laravel\Tests\Fixtures;
 
 use Illuminate\Database\Eloquent\Model;
-use ImageApi\Laravel\Concerns\HasOgImage;
-use ImageApi\Laravel\Contracts\OgImageable;
+use Shareglint\Laravel\Concerns\HasOgImage;
+use Shareglint\Laravel\Contracts\OgImageable;
 
 class Post extends Model implements OgImageable
 {

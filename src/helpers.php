@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use ImageApi\Laravel\ImageApiManager;
+use Shareglint\Laravel\ShareglintManager;
 
 if (! function_exists('og_image')) {
     /**
@@ -13,6 +13,6 @@ if (! function_exists('og_image')) {
      */
     function og_image(string $template, array $fields = [], ?string $extension = null): string
     {
-        return app(ImageApiManager::class)->url($template, $fields, $extension);
+        return app(ShareglintManager::class)->url($template, $fields, $extension);
     }
 }

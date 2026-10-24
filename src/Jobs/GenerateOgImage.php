@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ImageApi\Laravel\Jobs;
+namespace Shareglint\Laravel\Jobs;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -10,10 +10,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use ImageApi\ImageApiException;
-use ImageApi\Laravel\Contracts\OgImageable;
-use ImageApi\Laravel\ImageApiManager;
 use RuntimeException;
+use Shareglint\Laravel\Contracts\OgImageable;
+use Shareglint\Laravel\ShareglintManager;
+use Shareglint\ShareglintException;
 
 /**
  * Renders a model's OG image through the API and stores the file URL.
@@ -40,11 +40,11 @@ final class GenerateOgImage implements ShouldQueue
 
     public function __construct(public Model&OgImageable $model)
     {
-        $this->onConnection(config('imageapi.queue.connection'));
-        $this->onQueue(config('imageapi.queue.name'));
+        $this->onConnection(config('shareglint.queue.connection'));
+        $this->onQueue(config('shareglint.queue.name'));
     }
 
-    public function handle(ImageApiManager $api): void
+    public function handle(ShareglintManager $api): void
     {
         $model = $this->model;
         $column = $model->ogImageColumn();
@@ -54,7 +54,7 @@ final class GenerateOgImage implements ShouldQueue
         }
 
         $template = $model->ogImageTemplate();
-        $fields = ImageApiManager::normalize($model->ogImageFields());
+        $fields = ShareglintManager::normalize($model->ogImageFields());
         $format = $api->format();
 
         try {
@@ -64,7 +64,7 @@ final class GenerateOgImage implements ShouldQueue
                 $fields,
                 $format,
             );
-        } catch (ImageApiException $e) {
+        } catch (ShareglintException $e) {
             // Sync mode ran out of time, but the render goes on — come back for it.
             if ($e->isOverloaded()) {
                 $this->release(15);
@@ -83,7 +83,7 @@ final class GenerateOgImage implements ShouldQueue
         }
 
         if (! $render->isReady()) {
-            throw new RuntimeException("Image API render {$render->id} finished as '{$render->status}': ".($render->error ?? 'no URL'));
+            throw new RuntimeException("Shareglint render {$render->id} finished as '{$render->status}': ".($render->error ?? 'no URL'));
         }
 
         $model->forceFill([$column => $render->url])->saveQuietly();

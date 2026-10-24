@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace ImageApi\Laravel\View\Components;
+namespace Shareglint\Laravel\View\Components;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\View\Component;
-use ImageApi\Laravel\Contracts\OgImageable;
-use ImageApi\Laravel\ImageApiManager;
 use InvalidArgumentException;
+use Shareglint\Laravel\Contracts\OgImageable;
+use Shareglint\Laravel\ShareglintManager;
 
 /**
  * og:image and twitter:image tags for the <head>.
@@ -23,7 +23,7 @@ final class OgImage extends Component
 
     /** @param array<string, mixed> $fields */
     public function __construct(
-        ImageApiManager $api,
+        ShareglintManager $api,
         ?string $template = null,
         array $fields = [],
         ?Model $model = null,
@@ -45,7 +45,7 @@ final class OgImage extends Component
 
     public function render(): string
     {
-        return 'imageapi::components.og-image';
+        return 'shareglint::components.og-image';
     }
 
     private static function fromModel(Model $model): string
