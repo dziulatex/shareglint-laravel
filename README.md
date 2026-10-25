@@ -38,6 +38,19 @@ Shareglint::render('blog-og', ['title' => 'Hi']);                        // any 
 
 `null` fields are left out, booleans become `1`/`0`, dates `Y-m-d`.
 
+**One template → 6 sizes** — `og` 1200×630, `square` 1080×1080, `portrait` 1080×1350, `story`
+1080×1920, `pinterest` 1000×1500, `youtube` 1280×720:
+
+```blade
+<x-og-image template="blog-og" :fields="['title' => $post->title]" size="square" />  {{-- width/height follow the size --}}
+```
+
+```php
+og_image('blog-og', ['title' => $post->title], size: 'story');            // signed with the fields
+Shareglint::autoOgUrl(url()->current(), size: 'story');
+Shareglint::renderSizes('blog-og', ['title' => 'Hi'], ['og', 'square']); // one render (and quota unit) per size
+```
+
 ## Stored images for models
 
 ```php

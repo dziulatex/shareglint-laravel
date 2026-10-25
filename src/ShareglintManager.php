@@ -29,16 +29,23 @@ final class ShareglintManager
     /**
      * Signed `/i/` URL of `$template` filled with `$fields` — no API call,
      * the image renders on the first crawler hit. Null values are left out,
-     * booleans become 1/0 and dates Y-m-d.
+     * booleans become 1/0 and dates Y-m-d. `$size` is a key of
+     * Shareglint::SIZES ('square', 'story'…), signed with the fields.
      *
      * @param  array<string, mixed>  $fields  template fields, optionally `locale`
      */
-    public function url(string $template, array $fields = [], ?string $extension = null): string
+    public function url(string $template, array $fields = [], ?string $extension = null, ?string $size = null): string
     {
+        $fields = self::normalize($fields);
+
+        if ($size !== null) {
+            $fields['size'] = self::size($size);
+        }
+
         return Shareglint::signedUrl(
             $this->require('account_id', 'SHAREGLINT_ACCOUNT_ID'),
             $template,
-            self::normalize($fields),
+            $fields,
             $this->require('signing_secret', 'SHAREGLINT_SIGNING_SECRET'),
             $this->extension($extension),
             $this->baseUrl(),
@@ -48,13 +55,33 @@ final class ShareglintManager
     /**
      * Auto-OG `/u/` URL of a page on one of the account's allowed domains.
      * Needs no secret: the image is built from the page's own title,
-     * description and favicon.
+     * description and favicon. `$size` renders the same card in another frame.
      */
-    public function autoOgUrl(string $pageUrl, ?string $extension = null): string
+    public function autoOgUrl(string $pageUrl, ?string $extension = null, ?string $size = null): string
     {
         $account = $this->require('account_id', 'SHAREGLINT_ACCOUNT_ID');
 
-        return $this->baseUrl().'/u/'.$account.'.'.$this->extension($extension).'?url='.rawurlencode($pageUrl);
+        return $this->baseUrl().'/u/'.$account.'.'.$this->extension($extension).'?url='.rawurlencode($pageUrl)
+            .($size === null ? '' : '&size='.self::size($size));
+    }
+
+    /**
+     * Width and height (CSS px) of a size preset; null = the 1200×630 default.
+     *
+     * @return array{width: int, height: int}
+     */
+    public static function dimensions(?string $size): array
+    {
+        return Shareglint::SIZES[self::size($size ?? 'og')];
+    }
+
+    private static function size(string $size): string
+    {
+        if (! isset(Shareglint::SIZES[$size])) {
+            throw new InvalidArgumentException("Shareglint: unknown size '{$size}' — use ".implode(', ', array_keys(Shareglint::SIZES)).'.');
+        }
+
+        return $size;
     }
 
     /** The REST client (renders, history, usage). Needs SHAREGLINT_KEY. */

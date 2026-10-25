@@ -87,3 +87,19 @@ it('publishes the config file', function () {
     expect(array_values($paths))->toBe([config_path('shareglint.php')])
         ->and(require array_key_first($paths))->toHaveKeys(['key', 'base_url', 'account_id', 'signing_secret']);
 });
+
+it('signs a size preset with the fields and adds it to the auto-OG URL', function () {
+    $square = og_image('blog-og', VECTOR_FIELDS, size: 'square');
+
+    parse_str((string) parse_url($square, PHP_URL_QUERY), $params);
+    unset($params['s']);
+    ksort($params);
+    $canonical = '/i/'.TestCase::ACCOUNT.'/blog-og.png?'.implode('&', array_map(
+        fn ($k, $v) => rawurlencode($k).'='.rawurlencode($v), array_keys($params), $params,
+    ));
+
+    expect($params['size'])->toBe('square')
+        ->and($square)->toEndWith('&s='.substr(hash_hmac('sha256', $canonical, TestCase::SECRET), 0, 32))
+        ->and(Shareglint::autoOgUrl('https://a.dev/', size: 'story'))->toEndWith('?url=https%3A%2F%2Fa.dev%2F&size=story')
+        ->and(fn () => og_image('blog-og', [], size: 'billboard'))->toThrow(InvalidArgumentException::class, 'billboard');
+});

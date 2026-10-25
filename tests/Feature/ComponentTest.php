@@ -54,3 +54,17 @@ it('builds the auto-OG URL of the current page, or of a given one', function () 
 it('needs a template, a model or auto', function () {
     expect(fn () => Blade::render('<x-og-image />'))->toThrow(Exception::class, 'pass template, model or auto');
 });
+
+it('signs a size preset and takes its dimensions for the tags', function () {
+    $html = Blade::render('<x-og-image template="blog-og" :fields="$fields" size="story" />', ['fields' => ['title' => 'Hi']]);
+
+    expect($html)
+        ->toContain('?size=story&amp;title=Hi&amp;s=')
+        ->toContain('<meta property="og:image:width" content="1080">')
+        ->toContain('<meta property="og:image:height" content="1920">');
+
+    // An explicit width still wins over the preset.
+    expect(Blade::render('<x-og-image template="blog-og" size="square" :width="540" />'))
+        ->toContain('<meta property="og:image:width" content="540">')
+        ->toContain('<meta property="og:image:height" content="1080">');
+});
