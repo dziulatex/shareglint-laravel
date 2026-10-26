@@ -21,6 +21,13 @@ final class ShareglintManager
 {
     public const EXTENSIONS = ['png', 'jpg', 'webp', 'pdf'];
 
+    /**
+     * Animated extensions, for url() only: a GIF or MP4 recorded from the
+     * template's CSS animations (5 renders of quota on the first hit). Keep a
+     * still extension for og:image — crawlers show a GIF's first frame.
+     */
+    public const ANIMATED_EXTENSIONS = ['gif', 'mp4'];
+
     private ?Shareglint $client = null;
 
     /** @param array<string, mixed> $config */
@@ -32,14 +39,28 @@ final class ShareglintManager
      * booleans become 1/0 and dates Y-m-d. `$size` is a key of
      * Shareglint::SIZES ('square', 'story'…), signed with the fields.
      *
+     * `gif` and `mp4` extensions give an animated file; `$duration` (seconds,
+     * 0.5–5) and `$fps` (10–30) are signed into the URL and only allowed there.
+     *
      * @param  array<string, mixed>  $fields  template fields, optionally `locale`
      */
-    public function url(string $template, array $fields = [], ?string $extension = null, ?string $size = null): string
+    public function url(string $template, array $fields = [], ?string $extension = null, ?string $size = null, float|int|null $duration = null, ?int $fps = null): string
     {
         $fields = self::normalize($fields);
+        $extension = $extension !== null && in_array($extension, self::ANIMATED_EXTENSIONS, true)
+            ? $extension
+            : $this->extension($extension);
 
         if ($size !== null) {
             $fields['size'] = self::size($size);
+        }
+
+        if ($duration !== null || $fps !== null) {
+            if (! in_array($extension, self::ANIMATED_EXTENSIONS, true)) {
+                throw new InvalidArgumentException('Shareglint: duration and fps only apply to the gif and mp4 extensions.');
+            }
+
+            $fields += self::normalize(['duration' => $duration, 'fps' => $fps]);
         }
 
         return Shareglint::signedUrl(
@@ -47,7 +68,7 @@ final class ShareglintManager
             $template,
             $fields,
             $this->require('signing_secret', 'SHAREGLINT_SIGNING_SECRET'),
-            $this->extension($extension),
+            $extension,
             $this->baseUrl(),
         );
     }

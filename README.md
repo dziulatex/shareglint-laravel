@@ -51,6 +51,15 @@ Shareglint::autoOgUrl(url()->current(), size: 'story');
 Shareglint::renderSizes('blog-og', ['title' => 'Hi'], ['og', 'square']); // one render (and quota unit) per size
 ```
 
+**Animated GIF and MP4** — the template's CSS animations, recorded frame by frame (up to 5 s, long edge
+1080 px, 5 renders of quota each). For posts, chat and email; keep a still extension in `og:image`,
+where crawlers show only a GIF's first frame:
+
+```php
+og_image('animated-countdown', ['number' => 12], 'gif', duration: 4);     // duration and fps are signed too
+Shareglint::render('animated-countdown', ['number' => 12], format: 'mp4', duration: 3, fps: 30);
+```
+
 ## Stored images for models
 
 ```php
